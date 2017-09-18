@@ -27,22 +27,29 @@ export default class chatTwilio extends Component {
       identity: 'hoangnguyen',
       device: DeviceInfo.getUniqueID()
     }).then((response) => {
+      // create twilio chat instance, with given token from api.
       const messagingClient = Twilio.create(response.data.token);
       messagingClient
         .then(function(client) {
           console.log('init success');
+
+          // get public channels that we can join.
           client.getPublicChannelDescriptors()
           .then((channels) => {
+            // information for each channel.
             channels.items.forEach((channel) => {
               console.log(channel.friendlyName);
               console.log(channel.status);
             });
+
+            // try to join one channel.
             channels.items[5].getChannel()
             .then((c) => {
               c.join();
             });
           });
 
+          // subscribe to events: when to join channel and when to receive new message.
           client.on('channelJoined', function(channel) {
             console.log('join');
             channel.on('messageAdded', (mess) => {
